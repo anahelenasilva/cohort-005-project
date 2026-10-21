@@ -16,7 +16,9 @@ agent-browser install
 
 Start the app with `npm run dev` first. The examples below use
 `http://localhost:5173`, the dev server's default address — if `npm run dev`
-printed a different one, use that.
+printed a different one, use that. Wait for it with
+`until curl -s localhost:5173 >/dev/null; do sleep 1; done` rather than a
+fixed sleep.
 
 ### Sign in as a seeded user
 
@@ -31,8 +33,9 @@ agent-browser open http://localhost:5173/courses/introduction-to-typescript/less
 ```
 
 In the seed, user 1 is Alex Rivera (admin), user 2 is Sarah Chen (instructor),
-and user 5 is Emma Wilson, a student enrolled in `introduction-to-typescript`,
-whose first lesson is 1. Run `sqlite3 data.db "select id, name, role from users"`
+user 5 is Emma Wilson, a student enrolled in `introduction-to-typescript`,
+whose first lesson is 1, and user 10 is Bossy McBossface, a student with no
+enrollments, for the locked view of a lesson. Run `sqlite3 data.db "select id, name, role from users"`
 for the rest.
 
 ### Read the DOM

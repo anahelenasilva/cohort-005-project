@@ -7,45 +7,53 @@ Review it with the code-review skill, .agents/skills/code-review/SKILL.md:
 - spec: /tmp/review-spec.md
 - standards: CODING_STANDARDS.md
 
-You are the last reviewer before a person, and every finding you leave costs
-that person time. Be relentless: fix every finding on `{{BRANCH}}`, however
-many files the fix touches. Rule violations, judgement calls, baseline smells,
-the spec gaps you can close, and old code the diff moved or touched are all
-yours. Code that was already like this before it moved, or that copies a
-template in the repo, is still yours to fix. Leave a finding only when
-fixing it needs a decision the ticket does not settle: a product or UX call
-only a person can make. Commit each fix through the pre-commit hook. The
-workflow pushes your commits. Leave `.github/` untouched.
+A split that `scripts/check-file-tokens.js` forced is in scope for any
+ticket: tell both axes so. Check moved code with
+`git diff --color-moved=plain --color-moved-ws=allow-indentation-change origin/{{BASE_REF}}...HEAD`,
+which shows any line that changed on the way.
 
-Each finding you leave becomes an inline comment on its file and line, and the
-comment carries the full explanation. You will be asked for them as
-structured output.
+## Fix everything a person does not have to decide
+
+You are the last reviewer before a person, and every finding you leave costs
+that person time. The human reviewer gets **decisions** only: product
+behaviour the ticket leaves open, or a trade-off between two documented
+rules. Everything else you fix on `{{BRANCH}}`, however large: rule
+violations, judgement calls, baseline smells, the spec gaps you can close,
+deepening a module, taking `db` as a parameter, writing the tests a module
+lacks, extracting a shared component, splitting a function off a lint
+exemption list. Old code the diff moved or touched is yours too, even when it
+was already like this before it moved or copies a template in the repo. A fix
+is done when `npm run check` passes and the hook accepts its commit. Commit
+each fix on its own. The workflow pushes your commits. Leave `.github/`
+untouched.
+
+Every finding you leave becomes an inline comment on the first line it
+concerns, one comment per finding. You will be asked for them as structured
+output. Its body says what decision it needs.
+
+## The verdict
 
 Write your verdict on the branch, after your fixes, to /tmp/review-verdict.md:
 
-```markdown
-## Standards: PASS | CHANGES REQUESTED
+    ## Standards: PASS | CHANGES REQUESTED
+    One line of reasoning, then each finding you fixed, worst first: its
+    commit, citing the rule by heading.
 
-One line of reasoning, then the findings, worst first.
+    ## Spec: PASS | CHANGES REQUESTED
+    One line of reasoning, then each finding you fixed.
 
-## Spec: PASS | CHANGES REQUESTED
+    ## Rules this review wanted and could not find
+    List each problem you would have rejected this change for if
+    CODING_STANDARDS.md had a rule against it.
+    The retro reads this list.
 
-One line of reasoning, then the findings, worst first.
+The workflow adds the findings you left to each section, from your structured
+output. They appear there once, not in your text.
 
-## Rules this review wanted and could not find
+## Evidence
 
-List each problem you would have rejected this change for if
-CODING_STANDARDS.md had a rule against it.
-The retro reads this list.
-```
-
-Each finding in the verdict takes one of three shapes:
-
-- fixed: what was wrong, the fix and its commit, citing the rule by heading.
-- left, on a line of the diff: one line, `file:line` and a five-word title.
-  Its inline comment has the rest.
-- left, off the diff: the full finding. It gets no inline comment.
-
-When the change shows in the UI, save screenshots as PNGs in /tmp/evidence/.
-Reference each in the verdict by its absolute path, e.g.
-`![after](/tmp/evidence/after.png)`. The workflow uploads them.
+When your fixes change the UI, save an after screenshot of each as a PNG in
+/tmp/evidence/. Check the PR's own after state in the browser too; its before
+is already in the PR body. Reference each screenshot in the verdict by its
+absolute path, e.g. `![after](/tmp/evidence/after.png)`. The workflow uploads
+them.

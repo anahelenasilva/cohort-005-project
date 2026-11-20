@@ -1,5 +1,4 @@
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
-import { eq } from "drizzle-orm";
 import type * as schema from "~/db/schema";
 import { users, type UserRole } from "~/db/schema";
 
@@ -23,13 +22,6 @@ export function getDevUiPeople(
   currentUserId: number | null
 ): DevUiPeople {
   const everyone = db.select(devPerson).from(users).orderBy(users.id).all();
-  const currentUser =
-    currentUserId === null
-      ? undefined
-      : db
-          .select(devPerson)
-          .from(users)
-          .where(eq(users.id, currentUserId))
-          .get();
+  const currentUser = everyone.find((person) => person.id === currentUserId);
   return { users: everyone, currentUser: currentUser ?? null };
 }

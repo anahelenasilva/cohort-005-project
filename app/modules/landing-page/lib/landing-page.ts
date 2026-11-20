@@ -40,7 +40,6 @@ export type LandingPage = {
 const isPublished = eq(courses.status, CourseStatus.Published);
 
 function lessonCountsFor(db: Db, courseIds: number[]) {
-  if (courseIds.length === 0) return new Map<number, number>();
   const rows = db
     .select({ courseId: modules.courseId, count: sql<number>`count(*)` })
     .from(lessons)
@@ -80,31 +79,31 @@ function featuredCourses(db: Db): FeaturedCourse[] {
 }
 
 function stats(db: Db): LandingStats {
-  const published = db
+  const [published] = db
     .select({
       courses: sql<number>`count(*)`,
       instructors: sql<number>`count(distinct ${courses.instructorId})`,
     })
     .from(courses)
     .where(isPublished)
-    .get();
-  const publishedLessons = db
+    .all();
+  const [publishedLessons] = db
     .select({ count: sql<number>`count(*)` })
     .from(lessons)
     .innerJoin(modules, eq(lessons.moduleId, modules.id))
     .innerJoin(courses, eq(modules.courseId, courses.id))
     .where(isPublished)
-    .get();
-  const allCategories = db
+    .all();
+  const [allCategories] = db
     .select({ count: sql<number>`count(*)` })
     .from(categories)
-    .get();
+    .all();
 
   return {
-    courses: published?.courses ?? 0,
-    lessons: publishedLessons?.count ?? 0,
-    categories: allCategories?.count ?? 0,
-    instructors: published?.instructors ?? 0,
+    courses: published.courses,
+    lessons: publishedLessons.count,
+    categories: allCategories.count,
+    instructors: published.instructors,
   };
 }
 

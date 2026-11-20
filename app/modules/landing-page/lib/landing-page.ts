@@ -1,5 +1,5 @@
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
-import { desc, eq, sql } from "drizzle-orm";
+import { desc, eq, inArray, sql } from "drizzle-orm";
 import * as schema from "~/db/schema";
 import {
   categories,
@@ -39,18 +39,20 @@ export type LandingPage = {
 
 const isPublished = eq(courses.status, CourseStatus.Published);
 
-function lessonCountsByCourse(db: Db) {
+function lessonCountsFor(db: Db, courseIds: number[]) {
+  if (courseIds.length === 0) return new Map<number, number>();
   const rows = db
     .select({ courseId: modules.courseId, count: sql<number>`count(*)` })
     .from(lessons)
     .innerJoin(modules, eq(lessons.moduleId, modules.id))
+    .where(inArray(modules.courseId, courseIds))
     .groupBy(modules.courseId)
     .all();
   return new Map(rows.map((row) => [row.courseId, row.count]));
 }
 
-function featuredCourses(db: Db, lessonCounts: Map<number, number>) {
-  return db
+function featuredCourses(db: Db): FeaturedCourse[] {
+  const featured = db
     .select({
       id: courses.id,
       title: courses.title,
@@ -66,35 +68,49 @@ function featuredCourses(db: Db, lessonCounts: Map<number, number>) {
     .where(isPublished)
     .orderBy(desc(courses.createdAt), desc(courses.id))
     .limit(FEATURED_COURSE_COUNT)
-    .all()
-    .map((course) => ({
-      ...course,
-      lessonCount: lessonCounts.get(course.id) ?? 0,
-    }));
+    .all();
+  const lessonCounts = lessonCountsFor(
+    db,
+    featured.map((course) => course.id)
+  );
+  return featured.map((course) => ({
+    ...course,
+    lessonCount: lessonCounts.get(course.id) ?? 0,
+  }));
 }
 
-function stats(db: Db, lessonCounts: Map<number, number>): LandingStats {
+function stats(db: Db): LandingStats {
   const published = db
-    .select({ id: courses.id, instructorId: courses.instructorId })
+    .select({
+      courses: sql<number>`count(*)`,
+      instructors: sql<number>`count(distinct ${courses.instructorId})`,
+    })
     .from(courses)
     .where(isPublished)
-    .all();
+    .get();
+  const publishedLessons = db
+    .select({ count: sql<number>`count(*)` })
+    .from(lessons)
+    .innerJoin(modules, eq(lessons.moduleId, modules.id))
+    .innerJoin(courses, eq(modules.courseId, courses.id))
+    .where(isPublished)
+    .get();
+  const allCategories = db
+    .select({ count: sql<number>`count(*)` })
+    .from(categories)
+    .get();
 
   return {
-    courses: published.length,
-    lessons: published.reduce(
-      (total, course) => total + (lessonCounts.get(course.id) ?? 0),
-      0
-    ),
-    categories: db.select({ id: categories.id }).from(categories).all().length,
-    instructors: new Set(published.map((course) => course.instructorId)).size,
+    courses: published?.courses ?? 0,
+    lessons: publishedLessons?.count ?? 0,
+    categories: allCategories?.count ?? 0,
+    instructors: published?.instructors ?? 0,
   };
 }
 
 export function getLandingPage(db: Db): LandingPage {
-  const lessonCounts = lessonCountsByCourse(db);
   return {
-    featuredCourses: featuredCourses(db, lessonCounts),
-    stats: stats(db, lessonCounts),
+    featuredCourses: featuredCourses(db),
+    stats: stats(db),
   };
 }

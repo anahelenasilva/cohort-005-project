@@ -42,18 +42,18 @@ export function Hero({
 }
 
 const FAN = [
-  "z-30 translate-x-0 translate-y-0 rotate-0",
-  "z-20 translate-x-10 -translate-y-8 rotate-3 opacity-90",
-  "z-10 translate-x-20 -translate-y-16 rotate-6 opacity-75",
+  "z-30",
+  "z-20 hidden translate-x-10 -translate-y-8 rotate-3 opacity-90 lg:block",
+  "z-10 hidden translate-x-20 -translate-y-16 rotate-6 opacity-75 lg:block",
 ];
 
 function CoverStack({ courses }: { courses: FeaturedCourse[] }) {
   return (
-    <div className="relative hidden h-80 lg:block" aria-hidden="true">
+    <div className="relative max-w-sm lg:h-80 lg:max-w-none" aria-hidden="true">
       {courses.slice(0, FAN.length).map((course, index) => (
         <div
           key={course.id}
-          className={`absolute bottom-0 left-0 w-4/5 overflow-hidden rounded-xl border border-border bg-card shadow-lg ${FAN[index]}`}
+          className={`overflow-hidden rounded-xl border border-border bg-card shadow-lg lg:absolute lg:bottom-0 lg:left-0 lg:w-4/5 ${FAN[index]}`}
         >
           <CourseImage
             src={course.coverImageUrl}

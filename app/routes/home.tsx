@@ -45,11 +45,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   return (
     <div className="min-h-screen bg-background">
       <LandingHeader signedIn={signedIn} />
-      <Hero
-        actions={heroActions(signedIn)}
-        stats={stats}
-        courses={featuredCourses}
-      />
+      <Hero actions={heroActions(signedIn)} courses={featuredCourses} />
       <StatsBand stats={stats} />
       {featuredCourses.length > 0 && (
         <FeaturedCourses courses={featuredCourses} />

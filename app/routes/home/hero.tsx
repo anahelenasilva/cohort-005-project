@@ -3,27 +3,18 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { CourseImage } from "~/components/course-image";
 import type { HeroActions } from "~/modules/landing-page";
-import type {
-  FeaturedCourse,
-  LandingStats,
-} from "~/modules/landing-page/index.server";
+import type { FeaturedCourse } from "~/modules/landing-page/index.server";
 
 export function Hero({
   actions,
-  stats,
   courses,
 }: {
   actions: HeroActions;
-  stats: LandingStats;
   courses: FeaturedCourse[];
 }) {
   return (
     <section className="mx-auto grid max-w-6xl items-center gap-16 px-6 py-20 sm:py-28 lg:grid-cols-[1.1fr_1fr]">
       <div>
-        <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-sm text-muted-foreground">
-          <span className="size-2 rounded-full bg-primary" />
-          {stats.courses} courses · {stats.lessons} lessons
-        </p>
         <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
           Learn to code,
           <br />

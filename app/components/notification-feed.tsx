@@ -434,8 +434,8 @@ function purchaseLabel(kind: "individual_purchase" | "team_licence") {
   return kind === "team_licence" ? "Team Licence" : "Purchase";
 }
 
-function timeAgo(iso: string) {
-  const seconds = Math.round((Date.now() - new Date(iso).getTime()) / 1000);
+function timeAgo(iso: string, now = new Date()) {
+  const seconds = Math.round((now.getTime() - new Date(iso).getTime()) / 1000);
   if (seconds < 60) return "just now";
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
   if (seconds < 86400) return `${Math.floor(seconds / 3600)}h`;

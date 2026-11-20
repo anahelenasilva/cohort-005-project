@@ -14,9 +14,9 @@ export function formatPrice(cents: number | null | undefined): string {
   return `$${(cents / 100).toFixed(2)}`;
 }
 
-/** Whole days between an ISO timestamp and now. Negative values clamp to 0. */
-export function daysSince(iso: string): number {
-  const elapsed = Date.now() - new Date(iso).getTime();
+/** Whole days from an ISO timestamp to `now`. Negative values clamp to 0. */
+export function daysSince(iso: string, now = new Date()): number {
+  const elapsed = now.getTime() - new Date(iso).getTime();
   return Math.max(0, Math.floor(elapsed / 86_400_000));
 }
 
@@ -27,8 +27,8 @@ export function daysSince(iso: string): number {
  * Callers should render this with suppressHydrationWarning: the server and the
  * client can land either side of a minute boundary.
  */
-export function formatRelativeTime(iso: string): string {
-  const elapsed = Date.now() - new Date(iso).getTime();
+export function formatRelativeTime(iso: string, now = new Date()): string {
+  const elapsed = now.getTime() - new Date(iso).getTime();
 
   if (Number.isNaN(elapsed)) return "";
   if (elapsed < 60_000) return "just now";

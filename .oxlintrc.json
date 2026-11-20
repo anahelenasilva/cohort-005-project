@@ -103,6 +103,22 @@
       }
     },
     {
+      "files": ["app/components/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["**/routes/+types/*"],
+                "message": "app/components/ is for shared components, which declare their own props type. A component that needs a route's types belongs to that route: move it to app/routes/<route file name without .tsx>/."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "files": ["**/*.test.ts", "**/*.test.tsx"],
       "rules": {
         "max-lines-per-function": "off"
@@ -149,10 +165,6 @@
       "files": [
         "app/components/comment-thread.tsx",
         "app/components/dev-ui.tsx",
-        "app/components/lesson-viewer/curriculum-sidebar.tsx",
-        "app/components/lesson-viewer/full-lesson.tsx",
-        "app/components/lesson-viewer/locked-lesson.tsx",
-        "app/components/lesson-viewer/quiz-section.tsx",
         "app/components/monaco-markdown-editor.tsx",
         "app/components/notification-feed.tsx",
         "app/components/sidebar.tsx",
@@ -174,6 +186,10 @@
         "app/routes/admin.users.tsx",
         "app/routes/courses.$slug.$moduleId.tsx",
         "app/routes/courses.$slug.lessons.$lessonId.tsx",
+        "app/routes/courses.$slug.lessons.$lessonId/curriculum-sidebar.tsx",
+        "app/routes/courses.$slug.lessons.$lessonId/full-lesson.tsx",
+        "app/routes/courses.$slug.lessons.$lessonId/locked-lesson.tsx",
+        "app/routes/courses.$slug.lessons.$lessonId/quiz-section.tsx",
         "app/routes/courses.$slug.purchase.tsx",
         "app/routes/courses.$slug.tsx",
         "app/routes/courses.$slug.welcome.tsx",

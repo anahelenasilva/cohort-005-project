@@ -38,12 +38,24 @@ if (oversized.length > 0) {
 Split each file before you commit. Do not delete code or squash it onto fewer
 lines to get under the limit.
 
+Commit the split on its own, before your change:
+1. Save your edits to the file, \`git diff -- <file> > /tmp/<name>.patch\`,
+   then restore it with \`git checkout -- <file>\`.
+2. Split the file. Move code and change nothing else: no renames, no fixes,
+   no new props. Commit only the split, with a message that says it only
+   moves code.
+3. Redo your edits in the split files, with the patch as your guide, and
+   commit them separately.
+A reviewer can then read the move as a move and the change as a change.
+
 How to split:
 - Find the seams. Look for groups of functions, components, or tests that
   change together and share little with the rest of the file.
 - Route modules (app/routes/*): keep the loader, action, and page component in
   the route file. Move the business logic into a module in app/modules/ and
-  sub-components into their own files in app/components/.
+  sub-components into their own files next to the route, in a folder named
+  after it (app/routes/<route file name without .tsx>/). app/components/ is
+  for components more than one route uses.
 - Logic that is already in a module (app/modules/<name>/): split it into more
   files under lib/. Keep the entry points (index.ts, index.server.ts) small. Do
   not add a barrel file. See app/modules/README.md.

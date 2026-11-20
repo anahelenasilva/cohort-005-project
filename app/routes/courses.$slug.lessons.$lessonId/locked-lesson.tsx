@@ -3,9 +3,9 @@ import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { MapPin, ShieldAlert } from "lucide-react";
 import { countryName } from "~/lib/ppp";
-import type { Route } from "../../routes/+types/courses.$slug.lessons.$lessonId";
-import { CurriculumSidebar } from "~/components/lesson-viewer/curriculum-sidebar";
-import { LessonBreadcrumb } from "~/components/lesson-viewer/lesson-breadcrumb";
+import type { Route } from "../+types/courses.$slug.lessons.$lessonId";
+import { CurriculumSidebar } from "./curriculum-sidebar";
+import { LessonBreadcrumb } from "./lesson-breadcrumb";
 
 type LessonLoaderData = Route.ComponentProps["loaderData"];
 

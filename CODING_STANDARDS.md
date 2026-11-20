@@ -36,6 +36,20 @@ covering what the page shows. `npm run lint:boundaries` enforces this for the
 instructor analytics route only; apply it to every other module by hand. See
 [app/modules/README.md](./app/modules/README.md).
 
+## New behaviour goes in a deep module
+
+Behaviour a change adds, or moves out of a route, goes in a module under
+`app/modules/`, behind an entry point a test can call. A route keeps its
+loader, action and page component; a new file in `app/lib/` is a module that
+skipped its tests. See [app/modules/README.md](./app/modules/README.md).
+
+## A commit that moves code changes no behaviour
+
+A commit that moves code, to split a file or to extract a module, moves it
+and nothing else. A rename, a fix or a new prop goes in its own commit, so a
+reviewer reads the move as a move. A hidden `key={lesson.id}` once rode along
+in a 1,400-line move whose message said the code was unchanged.
+
 ## Arrange tests through the module under test
 
 Test setup calls the module's own functions. When the function you need does

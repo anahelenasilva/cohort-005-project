@@ -16,10 +16,10 @@ import {
 } from "lucide-react";
 import { formatDuration } from "~/lib/utils";
 import { YouTubePlayer } from "~/components/youtube-player";
-import type { Route } from "../../routes/+types/courses.$slug.lessons.$lessonId";
-import { CurriculumSidebar } from "~/components/lesson-viewer/curriculum-sidebar";
-import { LessonBreadcrumb } from "~/components/lesson-viewer/lesson-breadcrumb";
-import { QuizSection } from "~/components/lesson-viewer/quiz-section";
+import type { Route } from "../+types/courses.$slug.lessons.$lessonId";
+import { CurriculumSidebar } from "./curriculum-sidebar";
+import { LessonBreadcrumb } from "./lesson-breadcrumb";
+import { QuizSection } from "./quiz-section";
 
 type LessonLoaderData = Route.ComponentProps["loaderData"];
 

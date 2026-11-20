@@ -90,9 +90,9 @@ describe("describeNoteDraft", () => {
     );
   });
 
-  it("treats clearing a saved Note as an unsaved change that cannot be saved", () => {
-    const result = draft({ draft: "", savedBody: "kept" });
-    expect(result.status).toBe("unsaved");
+  it("says a cleared Note is empty, and cannot be saved, rather than unsaved", () => {
+    const result = draft({ draft: "  ", savedBody: "kept" });
+    expect(result.status).toBe("empty");
     expect(result.canSave).toBe(false);
   });
 });

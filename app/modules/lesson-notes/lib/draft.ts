@@ -9,7 +9,13 @@ export type NoteDraftInput = {
   error: string | undefined;
 };
 
-export type NoteStatus = "saving" | "error" | "unsaved" | "saved" | "blank";
+export type NoteStatus =
+  | "saving"
+  | "error"
+  | "empty"
+  | "unsaved"
+  | "saved"
+  | "blank";
 
 export type NoteDraft = {
   length: number;
@@ -37,7 +43,13 @@ export function describeDraft({
     max: MAX_NOTE_LENGTH,
     tooLong,
     canSave: !saving && changed && length > 0 && !tooLong,
-    status: statusOf({ saving, error, changed, savedBody }),
+    status: statusOf({
+      saving,
+      error,
+      changed,
+      empty: length === 0,
+      savedBody,
+    }),
   };
 }
 
@@ -45,15 +57,20 @@ function statusOf({
   saving,
   error,
   changed,
+  empty,
   savedBody,
 }: {
   saving: boolean;
   error: string | undefined;
   changed: boolean;
+  empty: boolean;
   savedBody: string | null;
 }): NoteStatus {
   if (saving) return "saving";
   if (error) return "error";
+  // The server refuses an empty Note, so a cleared box can never be saved;
+  // say why Save is off instead of calling it an unsaved change.
+  if (changed && empty) return "empty";
   if (changed) return "unsaved";
   if (savedBody !== null) return "saved";
   return "blank";

@@ -70,7 +70,14 @@ function NoteStatusLine({
   updatedAt: string | undefined;
 }) {
   if (status === "error") {
-    return <span className="text-sm text-destructive">{error}</span>;
+    return <span className="text-xs text-destructive">{error}</span>;
+  }
+  if (status === "empty") {
+    return (
+      <span className="text-xs text-muted-foreground">
+        Write something before saving your note
+      </span>
+    );
   }
   if (status === "unsaved") {
     return (

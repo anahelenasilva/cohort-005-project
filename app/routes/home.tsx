@@ -1,10 +1,8 @@
-import { eq } from "drizzle-orm";
 import type { Route } from "./+types/home";
 import { DevUI } from "~/components/dev-ui";
 import { getCurrentUserId, getDevCountry } from "~/lib/session";
 import { getCountryTierInfo, COUNTRIES } from "~/lib/ppp";
-import { db } from "~/db";
-import { users } from "~/db/schema";
+import { devUi } from "~/modules/dev-ui/index.server";
 import { heroActions } from "~/modules/landing-page";
 import { landingPage } from "~/modules/landing-page/index.server";
 import { LandingHeader } from "./home/landing-header";
@@ -12,14 +10,6 @@ import { Hero } from "./home/hero";
 import { StatsBand } from "./home/stats-band";
 import { FeaturedCourses } from "./home/featured-courses";
 import { LandingFooter } from "./home/landing-footer";
-
-function getAllUsers() {
-  return db.select().from(users).all();
-}
-
-function getUserById(id: number) {
-  return db.select().from(users).where(eq(users.id, id)).get();
-}
 
 export function meta() {
   return [
@@ -34,18 +24,14 @@ export function meta() {
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { featuredCourses, stats } = landingPage.get();
-  const allUsers = getAllUsers();
-  const currentUserId = await getCurrentUserId(request);
-  const currentUser = currentUserId ? getUserById(currentUserId) : null;
+  const { users, currentUser } = devUi.people(await getCurrentUserId(request));
   const devCountry = await getDevCountry(request);
 
   return {
     featuredCourses,
     stats,
-    users: allUsers.map((u) => ({ id: u.id, name: u.name, role: u.role })),
-    currentUser: currentUser
-      ? { id: currentUser.id, name: currentUser.name, role: currentUser.role }
-      : null,
+    users,
+    currentUser,
     devCountry,
     countryTierInfo: getCountryTierInfo(devCountry),
     countries: COUNTRIES,

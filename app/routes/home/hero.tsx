@@ -1,27 +1,84 @@
 import { Link } from "react-router";
-import { Button } from "~/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { Button } from "~/components/ui/button";
+import { CourseImage } from "~/components/course-image";
+import type { HeroActions } from "~/modules/landing-page";
+import type {
+  FeaturedCourse,
+  LandingStats,
+} from "~/modules/landing-page/index.server";
 
-export function Hero() {
+export function Hero({
+  actions,
+  stats,
+  courses,
+}: {
+  actions: HeroActions;
+  stats: LandingStats;
+  courses: FeaturedCourse[];
+}) {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-24 text-center">
-      <h1 className="text-5xl font-bold tracking-tight sm:text-6xl">
-        Learn to code,
-        <br />
-        <span className="text-muted-foreground">at your own pace</span>
-      </h1>
-      <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-        Structured courses built by experienced instructors. Track your
-        progress, take quizzes, and build real-world skills.
-      </p>
-      <div className="mt-10 flex items-center justify-center gap-4">
-        <Button asChild size="lg">
-          <Link to="/courses">
-            Browse Courses
-            <ArrowRight className="ml-2 size-4" />
-          </Link>
-        </Button>
+    <section className="mx-auto grid max-w-6xl items-center gap-16 px-6 py-20 sm:py-28 lg:grid-cols-[1.1fr_1fr]">
+      <div>
+        <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-sm text-muted-foreground">
+          <span className="size-2 rounded-full bg-primary" />
+          {stats.courses} courses · {stats.lessons} lessons
+        </p>
+        <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
+          Learn to code,
+          <br />
+          <span className="text-muted-foreground">at your own pace.</span>
+        </h1>
+        <p className="mt-6 max-w-xl text-lg text-muted-foreground">
+          Structured courses built by experienced instructors. Track your
+          progress, take quizzes, and build real-world skills.
+        </p>
+        <div className="mt-10 flex flex-wrap items-center gap-4">
+          <Button asChild size="lg">
+            <Link to={actions.primary.to}>
+              {actions.primary.label}
+              <ArrowRight className="ml-2 size-4" />
+            </Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link to={actions.secondary.to}>{actions.secondary.label}</Link>
+          </Button>
+        </div>
       </div>
+      {courses.length > 0 && <CoverStack courses={courses} />}
     </section>
+  );
+}
+
+// The featured covers, fanned out behind each other: the hero's visual,
+// built from what is already on the page rather than a new asset.
+const FAN = [
+  "z-30 translate-x-0 translate-y-0 rotate-0",
+  "z-20 translate-x-10 -translate-y-8 rotate-3 opacity-90",
+  "z-10 translate-x-20 -translate-y-16 rotate-6 opacity-75",
+];
+
+function CoverStack({ courses }: { courses: FeaturedCourse[] }) {
+  return (
+    <div className="relative hidden h-80 lg:block" aria-hidden="true">
+      {courses.slice(0, FAN.length).map((course, index) => (
+        <div
+          key={course.id}
+          className={`absolute bottom-0 left-0 w-4/5 overflow-hidden rounded-xl border border-border bg-card shadow-lg ${FAN[index]}`}
+        >
+          <CourseImage
+            src={course.coverImageUrl}
+            alt=""
+            className="aspect-video w-full object-cover"
+          />
+          <div className="px-4 py-3">
+            <p className="truncate text-sm font-semibold">{course.title}</p>
+            <p className="text-xs text-muted-foreground">
+              {course.instructorName} · {course.lessonCount} lessons
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }

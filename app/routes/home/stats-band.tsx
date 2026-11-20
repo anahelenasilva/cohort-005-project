@@ -1,39 +1,29 @@
-import { BookOpen, GraduationCap, Users } from "lucide-react";
+import { BookOpen, GraduationCap, Layers, PlayCircle } from "lucide-react";
+import type { LandingStats } from "~/modules/landing-page/index.server";
 
-export function StatsBand({
-  totalCourses,
-  totalCategories,
-}: {
-  totalCourses: number;
-  totalCategories: number;
-}) {
+export function StatsBand({ stats }: { stats: LandingStats }) {
+  const items = [
+    { icon: BookOpen, value: stats.courses, label: "Courses" },
+    { icon: PlayCircle, value: stats.lessons, label: "Lessons" },
+    { icon: Layers, value: stats.categories, label: "Categories" },
+    { icon: GraduationCap, value: stats.instructors, label: "Instructors" },
+  ];
+
   return (
-    <section className="border-y border-border bg-muted/50 py-16">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 sm:grid-cols-3">
-        <div className="text-center">
-          <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-lg bg-primary/10">
-            <BookOpen className="size-6 text-primary" />
+    <section className="border-y border-border bg-muted/50">
+      <dl className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-6 py-12 lg:grid-cols-4">
+        {items.map(({ icon: Icon, value, label }) => (
+          <div key={label} className="flex items-center gap-4">
+            <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+              <Icon className="size-6 text-primary" />
+            </div>
+            <div>
+              <dd className="text-2xl font-bold">{value}</dd>
+              <dt className="text-sm text-muted-foreground">{label}</dt>
+            </div>
           </div>
-          <p className="text-2xl font-bold">{totalCourses}</p>
-          <p className="text-sm text-muted-foreground">Available Courses</p>
-        </div>
-        <div className="text-center">
-          <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-lg bg-primary/10">
-            <GraduationCap className="size-6 text-primary" />
-          </div>
-          <p className="text-2xl font-bold">{totalCategories}</p>
-          <p className="text-sm text-muted-foreground">Categories</p>
-        </div>
-        <div className="text-center">
-          <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-lg bg-primary/10">
-            <Users className="size-6 text-primary" />
-          </div>
-          <p className="text-2xl font-bold">Self-paced</p>
-          <p className="text-sm text-muted-foreground">
-            Learn on your schedule
-          </p>
-        </div>
-      </div>
+        ))}
+      </dl>
     </section>
   );
 }

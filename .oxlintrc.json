@@ -211,8 +211,6 @@
         "app/routes/courses.tsx",
         "app/routes/dashboard.tsx",
         "app/routes/home.tsx",
-        "app/routes/home/featured-courses.tsx",
-        "app/routes/home/landing-header.tsx",
         "app/routes/instructor.$courseId.lessons.$lessonId.quiz.tsx",
         "app/routes/instructor.$courseId.lessons.$lessonId.tsx",
         "app/routes/instructor.$courseId.modules.$moduleId.tsx",

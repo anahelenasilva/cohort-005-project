@@ -4,7 +4,7 @@ import { Button } from "~/components/ui/button";
 import { useDarkMode } from "~/modules/theme";
 
 const navLink =
-  "text-sm font-medium text-muted-foreground transition-colors hover:text-foreground";
+  "whitespace-nowrap text-sm font-medium text-muted-foreground transition-colors hover:text-foreground";
 
 export function LandingHeader({ signedIn }: { signedIn: boolean }) {
   const { isDark, toggle } = useDarkMode();
@@ -15,7 +15,7 @@ export function LandingHeader({ signedIn }: { signedIn: boolean }) {
         <Link to="/" className="text-xl font-bold tracking-tight">
           Cadence
         </Link>
-        <nav className="flex items-center gap-6">
+        <nav className="flex items-center gap-3 sm:gap-6">
           <Link to="/courses" className={navLink}>
             Courses
           </Link>

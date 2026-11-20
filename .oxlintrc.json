@@ -111,7 +111,7 @@
             "patterns": [
               {
                 "group": ["**/routes/+types/*"],
-                "message": "A shared component declares its own props type. Importing a route's generated types ties it to that one route."
+                "message": "app/components/ is for shared components, which declare their own props type. A component that needs a route's types belongs to that route: move it to app/routes/<route file name without .tsx>/."
               }
             ]
           }

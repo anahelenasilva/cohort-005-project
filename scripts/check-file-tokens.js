@@ -53,7 +53,9 @@ How to split:
   change together and share little with the rest of the file.
 - Route modules (app/routes/*): keep the loader, action, and page component in
   the route file. Move the business logic into a module in app/modules/ and
-  sub-components into their own files in app/components/.
+  sub-components into their own files next to the route, in a folder named
+  after it (app/routes/<route file name without .tsx>/). app/components/ is
+  for components more than one route uses.
 - Logic that is already in a module (app/modules/<name>/): split it into more
   files under lib/. Keep the entry points (index.ts, index.server.ts) small. Do
   not add a barrel file. See app/modules/README.md.

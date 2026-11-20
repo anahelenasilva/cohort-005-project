@@ -56,6 +56,11 @@ Test setup calls the module's own functions. When the function you need does
 not exist, add it to the module rather than inserting rows directly, so a
 change to how the module stores its data leaves its tests alone.
 
+A module that only reads, such as `landing-page` or `instructor-analytics`,
+has no functions to arrange with. Its tests insert rows directly, through
+fixtures in the test file, rather than grow write functions only the tests
+call.
+
 ## A split the token check forced is in scope
 
 The pre-commit hook (`scripts/check-file-tokens.js`) refuses any commit that
@@ -81,6 +86,10 @@ notes loader ran one query per lesson, forty lessons per course.
 A query with no limit is fine on a seeded database and fatal on a real one.
 If the row count is a function of how long the product has been alive, add a
 limit. The instructor's students page timed out on the first big course.
+
+The DevUI panel's user list (`app/modules/dev-ui`) is exempt. It is a
+development tool for switching between users, so it has to offer every one,
+and a limit would hide people from the switcher.
 
 ## Soft-delete anything a person can point at
 

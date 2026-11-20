@@ -1,8 +1,9 @@
 // Fails when a commit adds a file to a lint exemption in .oxlintrc.json: an
 // override that turns a rule "off". The lists only shrink, with one way out:
 // a move-only split of an exempt file may carry the exemption to the files
-// its code moved into. So a new entry passes when the same commit removes
-// lines from a file already exempt from that rule.
+// its code moved into. A new entry passes only when the file is new in this
+// commit and the files already exempt from that rule lose at least half as
+// many lines as the new files hold (the rest is room for their imports).
 // Compares the staged .oxlintrc.json with HEAD's. lint-staged runs it when
 // .oxlintrc.json is staged.
 
@@ -40,37 +41,48 @@ const exemptions = (text) => {
   return byRule;
 };
 
-// The staged files this commit removes lines from.
-const shrinking = new Set(
-  git("diff", "--cached", "--numstat", "--no-renames")
-    .split("\n")
-    .map((line) => line.split("\t"))
-    .filter(([, deleted, file]) => file && Number(deleted) > 0)
-    .map(([, , file]) => file)
-);
-
 const before = read("HEAD");
 const after = read("");
 if (before === undefined || after === undefined) process.exit(0);
 
-const was = exemptions(before);
-const isSplitting = (rule) =>
-  [...(was.get(rule) ?? [])].some((file) => shrinking.has(file));
-
-const added = [...exemptions(after)].flatMap(([rule, files]) =>
-  [...files]
-    .filter((file) => !was.get(rule)?.has(file) && !isSplitting(rule))
-    .map((file) => `  ${rule}: ${file}`)
+// Per staged file: lines added and deleted. A file absent from HEAD is new.
+const changes = new Map(
+  git("diff", "--cached", "--numstat", "--no-renames")
+    .split("\n")
+    .map((line) => line.split("\t"))
+    .filter(([, , file]) => file)
+    .map(([added, deleted, file]) => [
+      file,
+      { added: Number(added) || 0, deleted: Number(deleted) || 0 },
+    ])
+);
+const created = new Set(
+  git("diff", "--cached", "--name-only", "--no-renames", "--diff-filter=A")
+    .split("\n")
+    .filter(Boolean)
 );
 
-if (added.length > 0) {
+const was = exemptions(before);
+const sum = (files, key) =>
+  files.reduce((total, file) => total + (changes.get(file)?.[key] ?? 0), 0);
+
+const rejected = [...exemptions(after)].flatMap(([rule, files]) => {
+  const fresh = [...files].filter((file) => !was.get(rule)?.has(file));
+  if (fresh.length === 0) return [];
+  const isMove =
+    fresh.every((file) => created.has(file)) &&
+    sum([...(was.get(rule) ?? [])], "deleted") * 2 >= sum(fresh, "added");
+  return isMove ? [] : fresh.map((file) => `  ${rule}: ${file}`);
+});
+
+if (rejected.length > 0) {
   console.error(`These lint exemptions are new in ${CONFIG}:\n
-${added.join("\n")}
+${rejected.join("\n")}
 
 An exemption list only shrinks. Remove these entries and make the code pass
 the rule: split the long function or file, or reduce the parameters or
-nesting. The one exception is a move-only split of a file that already has
-the exemption: commit the split with the exempt file's shrinking, and the new
-files may carry its exemption.`);
+nesting. The one exception is a move-only split: a file created in the same
+commit, holding code moved out of a file that already has the exemption, may
+carry that exemption.`);
   process.exit(1);
 }

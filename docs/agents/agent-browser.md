@@ -18,6 +18,25 @@ Start the app with `npm run dev` first. The examples below use
 `http://localhost:5173`, the dev server's default address — if `npm run dev`
 printed a different one, use that.
 
+### Sign in as a seeded user
+
+Most pages need a user. The DevUI panel signs one in through
+`POST /api/switch-user` (`app/routes/api.switch-user.ts`), so post to it
+from the page:
+
+```bash
+agent-browser open http://localhost:5173/
+agent-browser eval 'fetch("/api/switch-user", {method: "POST", body: new URLSearchParams({userId: "5"})}).then((r) => r.status)'
+agent-browser open http://localhost:5173/courses/introduction-to-typescript/lessons/1
+```
+
+In the seed, user 1 is Alex Rivera (admin), user 2 is Sarah Chen (instructor),
+and user 5 is Emma Wilson, a student enrolled in `introduction-to-typescript`,
+whose first lesson is 1. Run `sqlite3 data.db "select id, name, role from users"`
+for the rest.
+
+### Read the DOM
+
 A screenshot is pixels. To verify a fix you need a yes or a no, so read the
 DOM:
 
@@ -52,7 +71,7 @@ change you are reporting on trust.
 Screenshots are PR evidence: a before and an after for a change that shows in
 the UI.
 
-## Two things that will bite you
+## Three things that will bite you
 
 **Hydration lags "networkidle".** The button is in the server HTML before
 React attaches its `onClick`, so the first click can be a silent no-op. Poll
@@ -63,3 +82,10 @@ load discovers dependencies Vite has not pre-bundled, and pushes a full-page
 reload a moment after the response has finished. Absorb it once against a
 throwaway load before the real loop; otherwise it lands mid-interaction and
 every click after it hits a page that is already navigating away.
+
+**`fill ""` does not clear a React input.** The DOM goes empty, but React's
+`onChange` never fires, so the component keeps the old value, and later key
+presses cannot bring the two back in step. Clear with real keys:
+`agent-browser click <selector>`, `agent-browser press Control+a`,
+`agent-browser press Delete`. If a `fill ""` already ran, `agent-browser reload`
+first.

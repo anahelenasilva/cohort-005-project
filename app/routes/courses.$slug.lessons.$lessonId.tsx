@@ -45,8 +45,8 @@ import {
   getBestAttempt,
   computeResult,
 } from "~/lib/lesson-quiz.server";
-import { LockedLesson } from "~/components/lesson-viewer/locked-lesson";
-import { FullLesson } from "~/components/lesson-viewer/full-lesson";
+import { LockedLesson } from "./courses.$slug.lessons.$lessonId/locked-lesson";
+import { FullLesson } from "./courses.$slug.lessons.$lessonId/full-lesson";
 
 const createCommentSchema = z.object({
   intent: z.literal("create-comment"),

@@ -50,8 +50,6 @@ export function Hero({
   );
 }
 
-// The featured covers, fanned out behind each other: the hero's visual,
-// built from what is already on the page rather than a new asset.
 const FAN = [
   "z-30 translate-x-0 translate-y-0 rotate-0",
   "z-20 translate-x-10 -translate-y-8 rotate-3 opacity-90",

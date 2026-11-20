@@ -24,7 +24,8 @@ Write your verdict on the branch, after your fixes, to /tmp/review-verdict.md:
     One line of reasoning, then the findings, fixed or left.
 
     ## Rules this review wanted and could not find
-    Anything you wanted to fail the change for that no standard covers.
+    List each problem you would have rejected this change for if
+    CODING_STANDARDS.md had a rule against it.
     The retro reads this list.
 
 When the change shows in the UI, save screenshots as PNGs in /tmp/evidence/.

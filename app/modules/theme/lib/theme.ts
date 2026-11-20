@@ -21,6 +21,13 @@ export function applyTheme(dark: boolean, page: ThemePage) {
   } catch {}
 }
 
+/** Flips the page between light and dark, and returns whether it is now dark. */
+export function toggleTheme(page: ThemePage): boolean {
+  const dark = !isDark(page);
+  applyTheme(dark, page);
+  return dark;
+}
+
 export const themeInitScript = `
 (function() {
   try {

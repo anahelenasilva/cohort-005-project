@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { applyTheme, isDark, themeInitScript, type ThemePage } from "../index";
+import {
+  applyTheme,
+  isDark,
+  themeInitScript,
+  toggleTheme,
+  type ThemePage,
+} from "../index";
 
 function fakePage(
   options: {
@@ -72,6 +78,24 @@ describe("applyTheme", () => {
     applyTheme(true, fake.page);
 
     expect(isDark(fake.page)).toBe(true);
+  });
+});
+
+describe("toggleTheme", () => {
+  it("turns a light page dark and remembers it", () => {
+    const fake = fakePage();
+
+    expect(toggleTheme(fake.page)).toBe(true);
+    expect(isDark(fake.page)).toBe(true);
+    expect(fake.stored.get("cadence-theme")).toBe("dark");
+  });
+
+  it("turns a dark page light and remembers it", () => {
+    const fake = fakePage({ dark: true });
+
+    expect(toggleTheme(fake.page)).toBe(false);
+    expect(isDark(fake.page)).toBe(false);
+    expect(fake.stored.get("cadence-theme")).toBe("light");
   });
 });
 

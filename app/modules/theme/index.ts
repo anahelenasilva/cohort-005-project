@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { applyTheme, browserPage, isDark } from "./lib/theme";
+import { browserPage, isDark, toggleTheme } from "./lib/theme";
 
 export {
   applyTheme,
+  toggleTheme,
   isDark,
   themeInitScript,
   type ThemePage,
@@ -22,9 +23,7 @@ export function useDarkMode() {
   }, []);
 
   function toggle() {
-    const next = !dark;
-    setDark(next);
-    applyTheme(next, browserPage());
+    setDark(toggleTheme(browserPage()));
   }
 
   return { isDark: dark, toggle };

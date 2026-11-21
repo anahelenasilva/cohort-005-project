@@ -1,4 +1,4 @@
-const STORAGE_KEY = "cadence-theme";
+const STORAGE_KEY = "cadence-theme-choice";
 const DARK_CLASS = "dark";
 const SYSTEM_DARK_QUERY = "(prefers-color-scheme: dark)";
 

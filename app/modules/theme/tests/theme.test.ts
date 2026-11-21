@@ -18,7 +18,7 @@ function fakePage(
 ) {
   const classes = new Set<string>(options.dark ? ["dark"] : []);
   const stored = new Map<string, string>();
-  if (options.stored) stored.set("cadence-theme", options.stored);
+  if (options.stored) stored.set("cadence-theme-choice", options.stored);
   const storage = {
     getItem: (key: string) => stored.get(key) ?? null,
     setItem: (key: string, value: string) => void stored.set(key, value),
@@ -96,7 +96,7 @@ describe("applyTheme", () => {
     applyTheme(true, fake.page);
 
     expect(isDark(fake.page)).toBe(true);
-    expect(fake.stored.get("cadence-theme")).toBe("dark");
+    expect(fake.stored.get("cadence-theme-choice")).toBe("dark");
   });
 
   it("remembers light when the OS is dark", () => {
@@ -105,7 +105,7 @@ describe("applyTheme", () => {
     applyTheme(false, fake.page);
 
     expect(isDark(fake.page)).toBe(false);
-    expect(fake.stored.get("cadence-theme")).toBe("light");
+    expect(fake.stored.get("cadence-theme-choice")).toBe("light");
   });
 
   it("forgets the choice when it matches the OS", () => {
@@ -115,15 +115,7 @@ describe("applyTheme", () => {
     applyTheme(false, fake.page);
 
     expect(isDark(fake.page)).toBe(false);
-    expect(fake.stored.has("cadence-theme")).toBe(false);
-  });
-
-  it("forgets a light choice stored before it followed the OS", () => {
-    const fake = fakePage({ stored: "light", systemDark: false });
-
-    applyTheme(false, fake.page);
-
-    expect(fake.stored.has("cadence-theme")).toBe(false);
+    expect(fake.stored.has("cadence-theme-choice")).toBe(false);
   });
 
   it("still switches when storage is blocked", () => {
@@ -141,7 +133,7 @@ describe("toggleTheme", () => {
 
     expect(toggleTheme(fake.page)).toBe(true);
     expect(isDark(fake.page)).toBe(true);
-    expect(fake.stored.get("cadence-theme")).toBe("dark");
+    expect(fake.stored.get("cadence-theme-choice")).toBe("dark");
   });
 
   it("turns a dark page light and remembers it", () => {
@@ -149,17 +141,7 @@ describe("toggleTheme", () => {
 
     expect(toggleTheme(fake.page)).toBe(false);
     expect(isDark(fake.page)).toBe(false);
-    expect(fake.stored.get("cadence-theme")).toBe("light");
-  });
-
-  it("brings a page stuck on a dark choice stored before it followed the OS back to a light OS, and follows it from then on", () => {
-    const fake = fakePage({ dark: true, stored: "dark", systemDark: false });
-    followTheme(fake.page, () => {});
-
-    expect(toggleTheme(fake.page)).toBe(false);
-    fake.switchSystem(true);
-
-    expect(isDark(fake.page)).toBe(true);
+    expect(fake.stored.get("cadence-theme-choice")).toBe("light");
   });
 });
 
@@ -198,6 +180,13 @@ describe("followTheme, as it starts", () => {
     const fake = fakePage({ stored: "purple", systemDark: true });
 
     expect(startFollowing(fake.page)).toBe(true);
+  });
+
+  it("follows a light OS over a dark saved before it followed the OS", () => {
+    const fake = fakePage({ dark: true, systemDark: false });
+    fake.stored.set("cadence-theme", "dark");
+
+    expect(startFollowing(fake.page)).toBe(false);
   });
 
   it("follows the OS when storage is blocked", () => {
@@ -291,6 +280,15 @@ describe("themeInitScript", () => {
     runInitScript(fake);
 
     expect(fake.classes.has("dark")).toBe(true);
+  });
+
+  it("follows a light OS over a dark saved before it followed the OS", () => {
+    const fake = fakePage({ systemDark: false });
+    fake.stored.set("cadence-theme", "dark");
+
+    runInitScript(fake);
+
+    expect(fake.classes.has("dark")).toBe(false);
   });
 
   it("follows the OS when storage is blocked", () => {

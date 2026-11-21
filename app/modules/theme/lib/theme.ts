@@ -3,7 +3,7 @@ const DARK_CLASS = "dark";
 const SYSTEM_DARK_QUERY = "(prefers-color-scheme: dark)";
 
 /** The operating system's colour scheme, as `matchMedia` reports it. */
-export type SystemScheme = {
+type SystemScheme = {
   readonly matches: boolean;
   addEventListener(type: "change", listener: () => void): void;
   removeEventListener(type: "change", listener: () => void): void;

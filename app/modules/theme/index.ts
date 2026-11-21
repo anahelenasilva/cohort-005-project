@@ -13,7 +13,6 @@ export {
   syncTheme,
   watchSystemTheme,
   themeInitScript,
-  type SystemScheme,
   type ThemePage,
 } from "./lib/theme";
 

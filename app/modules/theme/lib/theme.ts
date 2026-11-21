@@ -41,7 +41,7 @@ function storedChoice(page: ThemePage): boolean | null {
  * Puts the page in the visitor's explicit choice if they made one, otherwise
  * in the OS's scheme. Returns whether the page is now dark.
  */
-export function syncTheme(page: ThemePage): boolean {
+function syncTheme(page: ThemePage): boolean {
   const dark = storedChoice(page) ?? page.system.matches;
   page.root.classList.toggle(DARK_CLASS, dark);
   return dark;
@@ -64,15 +64,16 @@ export function toggleTheme(page: ThemePage): boolean {
 }
 
 /**
- * Keeps the page in step with the OS as it switches scheme, unless the visitor
- * chose one explicitly. Calls `onChange` with whether the page is now dark.
- * Returns a function that stops watching.
+ * Puts the page in the theme it should have now, then keeps it there as the OS
+ * switches scheme. Calls `onChange` with whether the page is dark, once now
+ * and again after each switch. Returns a function that stops following.
  */
-export function watchSystemTheme(
+export function followTheme(
   page: ThemePage,
   onChange: (dark: boolean) => void
 ): () => void {
   const listener = () => onChange(syncTheme(page));
+  listener();
   page.system.addEventListener("change", listener);
   return () => page.system.removeEventListener("change", listener);
 }

@@ -1,11 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
 import {
   applyTheme,
+  followTheme,
   isDark,
-  syncTheme,
   themeInitScript,
   toggleTheme,
-  watchSystemTheme,
   type ThemePage,
 } from "../index";
 
@@ -57,6 +56,14 @@ function fakePage(
     system,
   };
   return { page, classes, stored, storage, classList, listeners, switchSystem };
+}
+
+/** Starts following the theme and returns whether the page came up dark. */
+function startFollowing(page: ThemePage): boolean {
+  const onChange = vi.fn();
+  followTheme(page, onChange);
+  expect(onChange).toHaveBeenCalledTimes(1);
+  return onChange.mock.calls[0][0];
 }
 
 function runInitScript(
@@ -147,7 +154,7 @@ describe("toggleTheme", () => {
 
   it("brings a page stuck on a dark choice stored before it followed the OS back to a light OS, and follows it from then on", () => {
     const fake = fakePage({ dark: true, stored: "dark", systemDark: false });
-    watchSystemTheme(fake.page, () => {});
+    followTheme(fake.page, () => {});
 
     expect(toggleTheme(fake.page)).toBe(false);
     fake.switchSystem(true);
@@ -156,18 +163,18 @@ describe("toggleTheme", () => {
   });
 });
 
-describe("syncTheme", () => {
+describe("followTheme, as it starts", () => {
   it("follows a dark OS when nothing is remembered", () => {
     const fake = fakePage({ systemDark: true });
 
-    expect(syncTheme(fake.page)).toBe(true);
+    expect(startFollowing(fake.page)).toBe(true);
     expect(isDark(fake.page)).toBe(true);
   });
 
   it("follows a light OS when nothing is remembered", () => {
     const fake = fakePage({ dark: true, systemDark: false });
 
-    expect(syncTheme(fake.page)).toBe(false);
+    expect(startFollowing(fake.page)).toBe(false);
     expect(isDark(fake.page)).toBe(false);
   });
 
@@ -176,7 +183,7 @@ describe("syncTheme", () => {
     applyTheme(true, fake.page);
     fake.classes.clear();
 
-    expect(syncTheme(fake.page)).toBe(true);
+    expect(startFollowing(fake.page)).toBe(true);
   });
 
   it("keeps a remembered light over a dark OS", () => {
@@ -184,27 +191,27 @@ describe("syncTheme", () => {
     applyTheme(false, fake.page);
     fake.classes.add("dark");
 
-    expect(syncTheme(fake.page)).toBe(false);
+    expect(startFollowing(fake.page)).toBe(false);
   });
 
   it("ignores a value it did not write", () => {
     const fake = fakePage({ stored: "purple", systemDark: true });
 
-    expect(syncTheme(fake.page)).toBe(true);
+    expect(startFollowing(fake.page)).toBe(true);
   });
 
   it("follows the OS when storage is blocked", () => {
     const fake = fakePage({ storageThrows: true, systemDark: true });
 
-    expect(syncTheme(fake.page)).toBe(true);
+    expect(startFollowing(fake.page)).toBe(true);
   });
 });
 
-describe("watchSystemTheme", () => {
+describe("followTheme, as the OS switches", () => {
   it("follows the OS as it switches", () => {
     const fake = fakePage({ systemDark: false });
     const onChange = vi.fn();
-    watchSystemTheme(fake.page, onChange);
+    followTheme(fake.page, onChange);
 
     fake.switchSystem(true);
     expect(isDark(fake.page)).toBe(true);
@@ -219,7 +226,7 @@ describe("watchSystemTheme", () => {
     const fake = fakePage({ systemDark: true });
     applyTheme(false, fake.page);
     const onChange = vi.fn();
-    watchSystemTheme(fake.page, onChange);
+    followTheme(fake.page, onChange);
 
     fake.switchSystem(false);
     fake.switchSystem(true);
@@ -231,13 +238,13 @@ describe("watchSystemTheme", () => {
   it("stops watching when told to", () => {
     const fake = fakePage({ systemDark: false });
     const onChange = vi.fn();
-    const stop = watchSystemTheme(fake.page, onChange);
+    const stop = followTheme(fake.page, onChange);
 
     stop();
     fake.switchSystem(true);
 
     expect(fake.listeners.size).toBe(0);
-    expect(onChange).not.toHaveBeenCalled();
+    expect(onChange).toHaveBeenCalledTimes(1);
     expect(isDark(fake.page)).toBe(false);
   });
 });

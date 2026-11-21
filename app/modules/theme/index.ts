@@ -1,17 +1,11 @@
 import { useEffect, useState } from "react";
-import {
-  browserPage,
-  syncTheme,
-  toggleTheme,
-  watchSystemTheme,
-} from "./lib/theme";
+import { browserPage, followTheme, toggleTheme } from "./lib/theme";
 
 export {
   applyTheme,
   toggleTheme,
   isDark,
-  syncTheme,
-  watchSystemTheme,
+  followTheme,
   themeInitScript,
   type ThemePage,
 } from "./lib/theme";
@@ -26,11 +20,7 @@ export {
 export function useDarkMode() {
   const [dark, setDark] = useState(false);
 
-  useEffect(() => {
-    const page = browserPage();
-    setDark(syncTheme(page));
-    return watchSystemTheme(page, setDark);
-  }, []);
+  useEffect(() => followTheme(browserPage(), setDark), []);
 
   function toggle() {
     setDark(toggleTheme(browserPage()));

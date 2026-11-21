@@ -17,11 +17,11 @@ export {
 } from "./lib/theme";
 
 /**
- * Light or dark mode for the whole app. The page follows the OS's colour
- * scheme, live, until the visitor picks the other one with `toggle`; picking
- * the OS's scheme again goes back to following it. `isDark` starts false on
- * the server and picks up the page's theme once mounted. `themeInitScript` in
- * the document head applies the same rule before the first paint.
+ * Light or dark mode for the whole app, following
+ * docs/adr/0015-the-theme-follows-the-os-until-the-visitor-picks-the-other-scheme.md.
+ * `isDark` starts false on the server and picks up the page's theme once
+ * mounted. `themeInitScript` in the document head applies the same rule
+ * before the first paint.
  */
 export function useDarkMode() {
   const [dark, setDark] = useState(false);

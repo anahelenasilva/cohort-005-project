@@ -47,11 +47,7 @@ export function syncTheme(page: ThemePage): boolean {
   return dark;
 }
 
-/**
- * Switches the page to `dark`. Choosing the scheme the OS already uses means
- * "follow the OS", so the choice is forgotten and the page tracks the OS from
- * then on; choosing the other scheme is remembered.
- */
+/** Switches the page to `dark`; docs/adr/0015 says when the choice is remembered. */
 export function applyTheme(dark: boolean, page: ThemePage) {
   page.root.classList.toggle(DARK_CLASS, dark);
   try {

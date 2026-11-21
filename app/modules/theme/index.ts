@@ -1,25 +1,36 @@
 import { useEffect, useState } from "react";
-import { browserPage, isDark, toggleTheme } from "./lib/theme";
+import {
+  browserPage,
+  syncTheme,
+  toggleTheme,
+  watchSystemTheme,
+} from "./lib/theme";
 
 export {
   applyTheme,
   toggleTheme,
   isDark,
+  syncTheme,
+  watchSystemTheme,
   themeInitScript,
+  type SystemScheme,
   type ThemePage,
 } from "./lib/theme";
 
 /**
- * Light or dark mode for the whole app. `isDark` starts false on the server
- * and picks up the page's theme once mounted; `toggle` flips it and keeps the
- * choice for the next visit, which `themeInitScript` in the document head
- * restores before the first paint.
+ * Light or dark mode for the whole app. The page follows the OS's colour
+ * scheme, live, until the visitor picks the other one with `toggle`; picking
+ * the OS's scheme again goes back to following it. `isDark` starts false on
+ * the server and picks up the page's theme once mounted. `themeInitScript` in
+ * the document head applies the same rule before the first paint.
  */
 export function useDarkMode() {
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
-    setDark(isDark(browserPage()));
+    const page = browserPage();
+    setDark(syncTheme(page));
+    return watchSystemTheme(page, setDark);
   }, []);
 
   function toggle() {

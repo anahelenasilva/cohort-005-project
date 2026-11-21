@@ -102,7 +102,8 @@ describe("applyTheme", () => {
   });
 
   it("forgets the choice when it matches the OS", () => {
-    const fake = fakePage({ dark: true, stored: "dark", systemDark: false });
+    const fake = fakePage({ systemDark: false });
+    applyTheme(true, fake.page);
 
     applyTheme(false, fake.page);
 
@@ -110,7 +111,7 @@ describe("applyTheme", () => {
     expect(fake.stored.has("cadence-theme")).toBe(false);
   });
 
-  it("forgets a light choice when the OS is light", () => {
+  it("forgets a light choice stored before it followed the OS", () => {
     const fake = fakePage({ stored: "light", systemDark: false });
 
     applyTheme(false, fake.page);
@@ -144,7 +145,7 @@ describe("toggleTheme", () => {
     expect(fake.stored.get("cadence-theme")).toBe("light");
   });
 
-  it("brings a stuck dark page back to a light OS, and follows it from then on", () => {
+  it("brings a page stuck on a dark choice stored before it followed the OS back to a light OS, and follows it from then on", () => {
     const fake = fakePage({ dark: true, stored: "dark", systemDark: false });
     watchSystemTheme(fake.page, () => {});
 
@@ -171,13 +172,17 @@ describe("syncTheme", () => {
   });
 
   it("keeps a remembered dark over a light OS", () => {
-    const fake = fakePage({ stored: "dark", systemDark: false });
+    const fake = fakePage({ systemDark: false });
+    applyTheme(true, fake.page);
+    fake.classes.clear();
 
     expect(syncTheme(fake.page)).toBe(true);
   });
 
   it("keeps a remembered light over a dark OS", () => {
-    const fake = fakePage({ dark: true, stored: "light", systemDark: true });
+    const fake = fakePage({ dark: true, systemDark: true });
+    applyTheme(false, fake.page);
+    fake.classes.add("dark");
 
     expect(syncTheme(fake.page)).toBe(false);
   });
@@ -211,10 +216,12 @@ describe("watchSystemTheme", () => {
   });
 
   it("keeps an explicit choice when the OS switches", () => {
-    const fake = fakePage({ stored: "light", systemDark: false });
+    const fake = fakePage({ systemDark: true });
+    applyTheme(false, fake.page);
     const onChange = vi.fn();
     watchSystemTheme(fake.page, onChange);
 
+    fake.switchSystem(false);
     fake.switchSystem(true);
 
     expect(isDark(fake.page)).toBe(false);
@@ -237,7 +244,9 @@ describe("watchSystemTheme", () => {
 
 describe("themeInitScript", () => {
   it("restores a remembered dark theme over a light OS", () => {
-    const fake = fakePage({ stored: "dark", systemDark: false });
+    const fake = fakePage({ systemDark: false });
+    applyTheme(true, fake.page);
+    fake.classes.clear();
 
     runInitScript(fake);
 
@@ -245,7 +254,8 @@ describe("themeInitScript", () => {
   });
 
   it("keeps a remembered light theme over a dark OS", () => {
-    const fake = fakePage({ stored: "light", systemDark: true });
+    const fake = fakePage({ dark: true, systemDark: true });
+    applyTheme(false, fake.page);
 
     runInitScript(fake);
 
@@ -270,16 +280,6 @@ describe("themeInitScript", () => {
 
   it("follows the OS over a value it did not write", () => {
     const fake = fakePage({ stored: "purple", systemDark: true });
-
-    runInitScript(fake);
-
-    expect(fake.classes.has("dark")).toBe(true);
-  });
-
-  it("agrees with syncTheme on what applyTheme remembered", () => {
-    const fake = fakePage({ systemDark: false });
-    applyTheme(true, fake.page);
-    fake.classes.clear();
 
     runInitScript(fake);
 
